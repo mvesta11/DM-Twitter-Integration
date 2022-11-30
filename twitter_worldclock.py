@@ -130,15 +130,15 @@ if __name__ == '__main__':
     #for tweet in get_mentions(since_id, auth_obj):
     #    print(tweet['text'])
 
-    for tweet in get_home_timeline(since_id=since_id, auth_obj=auth_obj):
-        print(tweet)
-
-    #for tweet in get_tweets_by_screen_name(since_id=1, auth_obj=auth_obj, screen_name='LewisClient2022'):
+    #for tweet in get_home_timeline(since_id=since_id, auth_obj=auth_obj):
     #    print(tweet)
+
+    for tweet in get_tweets_by_screen_name(since_id=1, auth_obj=auth_obj, screen_name='LewisClient2022'):
+        print(tweet)
     #
     # send_dm(auth_obj)
-    #dms = list_dms(auth_obj)
-    #print(dms)
+    dms = list_dms(auth_obj)
+    print(dms)
     # get_followers(auth_obj)
     # friends = get_friends(auth_obj)
     #
