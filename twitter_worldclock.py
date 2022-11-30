@@ -28,7 +28,6 @@ def init_auth():
 
 def get_tweets_by_screen_name(since_id, auth_obj, screen_name):
 
-
     params = {'screen_name': screen_name,
               'count': 200,
               'since_id': since_id,
@@ -65,11 +64,10 @@ def send_dm(auth_obj):
                    {"type": "message_create",
                     "message_create":
                         {"target": {"recipient_id": "4027843701"},
-                         "message_data": {"text": "Hellow from class!"}
+                         "message_data": {"text": "Testing"}
                          }
                     }
                }
-
     response = requests.post(url, data=json.dumps(payload), auth=auth_obj)
     response.raise_for_status()
     return json.loads(response.text)
@@ -83,6 +81,7 @@ def list_dms(auth_obj):
     messages = [(e['id'], e['message_create']['message_data']['text'])
                 for e in r_json['events']]
     return messages
+
 
 def get_followers(auth_obj):
     url = 'https://api.twitter.com/1.1/followers/list.json'
@@ -133,13 +132,14 @@ if __name__ == '__main__':
     #for tweet in get_home_timeline(since_id=since_id, auth_obj=auth_obj):
     #    print(tweet)
 
-    for tweet in get_tweets_by_screen_name(since_id=1, auth_obj=auth_obj, screen_name='LewisClient2022'):
-        print(tweet)
+    #for tweet in get_tweets_by_screen_name(since_id=1, auth_obj=auth_obj, screen_name='LewisClient2022'):
+    #    print(tweet)
     #
-    # send_dm(auth_obj)
-    dms = list_dms(auth_obj)
-    print(dms)
-    # get_followers(auth_obj)
+    send_dm(auth_obj)
+    #dms = list_dms(auth_obj)
+    #print(dms)
+    #followers = get_followers(auth_obj)
+    #print(followers)
     # friends = get_friends(auth_obj)
     #
     # for friend in friends:

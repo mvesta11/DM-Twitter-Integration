@@ -32,8 +32,8 @@ async def handle_user_input(chat_client, twitter_client, loop):
         print('< 4 > list rooms')
         print('< 5 > post message to a room')
         print('< 6 > get twitter direct messages')
-
-
+        print('< 7 > list twitter followers')
+        print('< 8 > send a Twitter DM')
         print('\tchoice: ', end='', flush=True)
 
         command = await aioconsole.ainput()
@@ -83,11 +83,29 @@ async def handle_user_input(chat_client, twitter_client, loop):
 
         elif command == '6':
             try:
+                print('Here are the direct messages for this twitter account:\n')
                 for msg in twitter_client.list_dms():
                     print(msg)
 
             except Exception as e:
                 print('error getting direct messages {}'.format(e))
+
+        elif command == '7':
+            try:
+                print('Here is the list of followers for this twitter account:')
+                for follower in twitter_client.get_followers():
+                    print(follower)
+
+            except Exception as e:
+                print('Error listing followers {}'.format(e))
+
+        elif command == '8':
+            try:
+                follower_name = input('Enter the name of the follower you want to DM: ')
+                msg_dm = input('Enter your DM: ')
+                twitter_client.send_dm(msg_dm, follower_name)
+            except Exception as e:
+                print('Error sending a DM {}'.format(e))
 
 
 @click.group()
