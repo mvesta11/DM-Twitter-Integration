@@ -46,6 +46,7 @@ class ChatClient:
         self._ip = ip
         self._port = port
         self._connected = False
+        self._login_name = None
 
     def disconnect(self):
         if not self._connected:
@@ -110,6 +111,8 @@ class ChatClient:
         elif success != 'success':
             raise LoginError()
 
+        self._login_name = login_name
+
     async def lrooms(self):
         # expected response format:
         # /lroom public&system&public room\nroom1, omari, room to discuss chat service impl
@@ -126,13 +129,58 @@ class ChatClient:
 
         return rooms
 
+    async def crooms(self, room_name, room_description):
+
+        if self._login_name != None:
+            self._transport.write('/croom {}&{}&{}$'.format(room_name, self._login_name, room_description).encode('utf-8'))
+            crooms_response = await self._protocol._responses_q.get()
+            result = crooms_response.lstrip('/croom').rstrip('$').strip()
+        if result == 'success':
+            return 'created room: {}'.format(room_name)
+        else:
+            return result
+
+    async def join_room(self, room_name):
+        if self._login_name == None:
+            return 'must login first'
+
+        self._transport.write('/join {}$'.format(room_name).encode('utf-8'))
+        response = await self._protocol._responses_q.get()
+        result = response.lstrip('/joinroom').rstrip('$').strip()
+
+        if result == 'success':
+            return 'joined room: {}'.format(room_name)
+        else:
+            return result
+
+    async def leave_room(self, room_name):
+        if self._login_name == None:
+            return 'must login first'
+
+        self._transport.write('/leave {}$'.format(room_name).encode('utf-8'))
+        response = await self._protocol._responses_q.get()
+        result = response.lstrip('/leaveroom').rstrip('$').strip()
+
+        if result == 'success':
+            return 'left room: {}'.format(room_name)
+        else:
+            return result
+
+    async def dm(self, recipient, dm_msg):
+        if self._login_name != None:
+            self._transport.write('/dm {}&{}&{}$'.format(self._login_name, recipient, dm_msg).encode('utf-8'))
+        else:
+            return 'Failed! You must be logged in to DM.'
+
     async def post(self, msg, room):
-        # post to a room:
-        # /post public&hello everyone
-        self._transport.write('/post {}&{}$'.format(room.strip(), msg.strip()).encode('utf-8'))
+        if self._login_name == None:
+            print('must login first')
+        else:
+            self._transport.write('/post {}&{}&{}$'.format(self._login_name, room.strip(), msg.strip()).encode('utf-8'))
 
     async def get_user_msg(self):
         return await self._protocol._user_messages_q.get()
+
 
 if __name__ == '__main__':
     LOCAL_HOST = '127.0.0.1'

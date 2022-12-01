@@ -49,12 +49,21 @@ class TwitterDMClient:
         return [{'Follower Name': r['name'], 'id': r['id'], 'screen_name': r['screen_name']}
                 for r in r_json['users']]
 
-    def send_dm(self, dm_msg, screen_name): #DOESNT WORK.
+    def get_user_id_from_screenname(self, auth_obj, screenname):
+        url = "https://api.twitter.com/2/users/by?usernames={}".format(screenname)
+        response = requests.get(url=url, auth=auth_obj)
+        response.raise_for_status()
+        r_json = json.loads(response.text)
+        return r_json['data'][0]['id']
+        # return attributelist[0]['id']
+
+    def send_dm(self, dm_msg, screen_name):
+        id = self.get_user_id_from_screenname(self.auth_obj, screen_name)
         url = 'https://api.twitter.com/1.1/direct_messages/events/new.json'
         payload = {"event":
                        {"type": "message_create",
                         "message_create":
-                            {"target": {"screen_name": screen_name},
+                            {"target": {"recipient_id": id},
                              "message_data": {"text": dm_msg}
                              }
                         }
