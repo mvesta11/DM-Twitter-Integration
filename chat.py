@@ -2,14 +2,20 @@ import sys
 import aioconsole
 import asyncio
 import click
+import requests.exceptions
+
 from server.chat_server import ChatServer
 from client.chat_client import (
     ChatClient,
     NotConnectedError,
     LoginConflictError,
-    LoginError
+    LoginError,
 )
-from twitter.blk_client import TwitterDMClient
+from twitter.blk_client import (
+    TwitterDMClient,
+    InvalidUsername,
+    NotFriend
+)
 
 consumer_key = 'bXoAmDMk2DxTA9Wydr3oA48xU'
 consumer_secret = 'p7tIJDaiXtN1mLUyNbTAFrhqhAbAcTPYIMOYf85Lzvfu9jIPVZ'
@@ -160,8 +166,12 @@ async def handle_user_input(chat_client, twitter_client, loop):
                 follower_name = input('Enter the ScreenName of the follower you want to DM: ')
                 msg_dm = input('Enter your DM: ')
                 twitter_client.send_dm(msg_dm, follower_name)
+
+            except NotFriend:
+                print("Cannot message a user you aren't friends with. Please try again.")
+
             except Exception as e:
-                print('Error sending a DM {}'.format(e))
+                print("Cannot message a user that does not exist. Please try a different ScreenName.")
 
 
 @click.group()
